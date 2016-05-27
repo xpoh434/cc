@@ -24,7 +24,12 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        super.onCreate();
+//        super.onCreate();
+
+        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
+        if (view != null) {
+            wm.removeView(view);
+        }
 
         WindowManager.LayoutParams params = new WindowManager.LayoutParams(
                 WindowManager.LayoutParams.WRAP_CONTENT,
@@ -32,12 +37,9 @@ public class MyService extends Service {
                 0,
                 0,
                 WindowManager.LayoutParams.TYPE_TOAST,
-                0,
-                // WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
+                WindowManager.LayoutParams.FLAG_NOT_FOCUSABLE | WindowManager.LayoutParams.FLAG_NOT_TOUCHABLE,
                 PixelFormat.TRANSLUCENT);
         params.gravity = Gravity.CENTER;
-
-        WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
 
         LayoutInflater inflater = (LayoutInflater) this.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         view = inflater.inflate(R.layout.activity_popup,null);
@@ -52,6 +54,7 @@ public class MyService extends Service {
     public void onDestroy() {
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.removeView(view);
+        view = null;
     }
 
 }

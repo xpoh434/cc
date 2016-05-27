@@ -58,14 +58,14 @@ public class MyIntentService extends IntentService {
 
     private void handleActionStart() {
         // hmm...
-        while (true) {
-            try {
-                Log.i(TAG, "running...");
-                Thread.sleep(60000);
-            } catch (InterruptedException e) {
-                e.printStackTrace();
-            }
-        }
+//        while (true) {
+//            try {
+//                Log.i(TAG, "running...");
+//                Thread.sleep(60000);
+//            } catch (InterruptedException e) {
+//                e.printStackTrace();
+//            }
+//        }
     }
 
 }
