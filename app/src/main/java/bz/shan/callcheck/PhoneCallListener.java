@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.database.Cursor;
 import android.os.Bundle;
+import android.os.PowerManager;
 import android.provider.ContactsContract;
 import android.telephony.TelephonyManager;
 import android.util.Log;
@@ -37,7 +38,8 @@ public class PhoneCallListener extends BroadcastReceiver {
             String incomingNumber = bundle.getString(TelephonyManager.EXTRA_INCOMING_NUMBER);
             Log.i(LOG_TAG,"incomingNumber : "+incomingNumber);
 
-                if(!checkContactNumber(incomingNumber, context)) {
+                String caller = checkContactNumber(incomingNumber, context);
+                if(caller == null) {
                     try {
                         String entity = query.check(incomingNumber, context);
                         if("".equals(entity)) {
@@ -52,7 +54,9 @@ public class PhoneCallListener extends BroadcastReceiver {
                         popup("network problem", context);
                     }
                 } else {
-                    Log.i(LOG_TAG, String.format("number " + incomingNumber + " is in contact list."));
+                    String msg = String.format("number %s is in contact list (%s)", incomingNumber, caller);
+                    Log.i(LOG_TAG, msg);
+                    popup(msg, context);
                 }
 
         } else {
@@ -63,13 +67,25 @@ public class PhoneCallListener extends BroadcastReceiver {
     }
 
     private void popup(String msg, Context context) {
-        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
+
+        Intent i = new Intent(context, MyService.class);
+        i.putExtra("msg", msg);
+        context.startService(i);
+
+//        PowerManager pm = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+//        PowerManager.WakeLock wl = pm.newWakeLock(PowerManager.FULL_WAKE_LOCK
+//                | PowerManager.ACQUIRE_CAUSES_WAKEUP, "TAG");
+//
+//        Toast.makeText(context, msg, Toast.LENGTH_LONG).show();
     }
     private void dismiss(Context context) {
         //
+        Intent i = new Intent(context, MyService.class);
+        context.stopService(i);
+
     }
 
-    private boolean checkContactNumber(String number, Context context) {
+    private String checkContactNumber(String number, Context context) {
         ContentResolver cr = context.getContentResolver();
         Cursor cur = cr.query(ContactsContract.Contacts.CONTENT_URI,
                 null, null, null, null);
@@ -95,7 +111,7 @@ public class PhoneCallListener extends BroadcastReceiver {
                                         ContactsContract.CommonDataKinds.Phone.NUMBER)).replaceAll("[\\(\\)\\-\\s]","");
                                 Log.i(LOG_TAG,phoneNo + " " + number);
                                 if (number.equals(phoneNo)) {
-                                    return true;
+                                    return name;
                                 }
                             }
                         } finally {
@@ -107,6 +123,6 @@ public class PhoneCallListener extends BroadcastReceiver {
         } finally {
             cur.close();
         }
-        return false;
+        return null;
     }
 }
