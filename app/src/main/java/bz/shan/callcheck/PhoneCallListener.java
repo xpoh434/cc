@@ -21,7 +21,7 @@ public class PhoneCallListener extends BroadcastReceiver {
 
     private boolean ringing = false;
 
-    private JunkcallQuery query = new JunkcallQuery();
+    private JunkcallQuery2 query = new JunkcallQuery2();
 
     @Override
     public void onReceive(final Context context, Intent intent) {
@@ -38,11 +38,15 @@ public class PhoneCallListener extends BroadcastReceiver {
             String incomingNumber = bundle.getString(TelephonyManager.EXTRA_INCOMING_NUMBER);
             Log.i(LOG_TAG,"incomingNumber : "+incomingNumber);
 
+            if(incomingNumber == null || incomingNumber.trim() == "") {
+                String msg = String.format("unknown number");
+                popup(msg, context);
+            } else {
                 String caller = checkContactNumber(incomingNumber, context);
-                if(caller == null) {
+                if (caller == null) {
                     try {
                         String entity = query.check(incomingNumber, context);
-                        if("".equals(entity)) {
+                        if ("".equals(entity)) {
                             Log.i(LOG_TAG, "number " + incomingNumber + " is not junk");
                         } else {
                             String msg = String.format("number %s is junk (%s)", incomingNumber, entity);
@@ -58,7 +62,7 @@ public class PhoneCallListener extends BroadcastReceiver {
                     Log.i(LOG_TAG, msg);
                     popup(msg, context);
                 }
-
+            }
         } else {
             ringing = false;
             Log.i(LOG_TAG,"phone idle");
