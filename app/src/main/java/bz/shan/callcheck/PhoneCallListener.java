@@ -47,15 +47,18 @@ public class PhoneCallListener extends BroadcastReceiver {
                     try {
                         String entity = query.check(incomingNumber, context);
                         if ("".equals(entity)) {
-                            Log.i(LOG_TAG, "number " + incomingNumber + " is not junk");
+                            String msg = String.format("number %s is not found in junk list", incomingNumber);
+                            Log.i(LOG_TAG, msg);
+                            popup(msg, context);
                         } else {
                             String msg = String.format("number %s is junk (%s)", incomingNumber, entity);
                             Log.i(LOG_TAG, msg);
                             popup(msg, context);
                         }
                     } catch (JunkcallQuery.ConnectionException e) {
-                        Log.e(LOG_TAG, "query failed: " + e.getMessage());
-                        popup("network problem", context);
+                        String msg = "query failed: " + e.getMessage();
+                        Log.e(LOG_TAG, msg);
+                        popup(msg, context);
                     }
                 } else {
                     String msg = String.format("number %s is in contact list (%s)", incomingNumber, caller);

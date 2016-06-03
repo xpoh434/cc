@@ -1,3 +1,17 @@
 <resources>
     <string name="app_name">CallCheck</string>
+
+    <!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+    <string name="call_title_hint">Enter the name of caller</string>
+    <string name="call_name_label">Name</string>
+    <string name="call_number_label">Number</string>
+    <string name="call_is_junk_label">Junk</string>
+    <string name="call_date_label">Date</string>
+    <string name="call_number_hint">Enter phone number</string>
+    <string name="date_picker_title">Date of call</string>
+    <string name="new_call">New Call</string>
+    <string name="show_subtitle">Show subtitle</string>
+    <string name="hide_subtitle">Hide subtitle</string>
+    <string name="subtitle_format">Number of calls: %d</string>
 </resources>
