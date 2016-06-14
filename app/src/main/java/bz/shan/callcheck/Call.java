@@ -13,8 +13,11 @@ public class Call {
     private boolean isJunk;
     private UUID mId;
 
-    public Call() {
-        mId = UUID.randomUUID();
+    public Call(){
+        this(UUID.randomUUID());
+    }
+    public Call(UUID id) {
+        mId = id;
         mDate = new Date();
     }
 

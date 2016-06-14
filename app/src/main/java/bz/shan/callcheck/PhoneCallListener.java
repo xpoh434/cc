@@ -12,6 +12,8 @@ import android.telephony.TelephonyManager;
 import android.util.Log;
 import android.widget.Toast;
 
+import java.util.Date;
+
 /**
  * Created by shan on 5/20/16.
  */
@@ -23,6 +25,8 @@ public class PhoneCallListener extends BroadcastReceiver {
 
     private JunkcallQuery2 query = new JunkcallQuery2();
 
+    private CallLab callLab;
+
     @Override
     public void onReceive(final Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
@@ -30,6 +34,8 @@ public class PhoneCallListener extends BroadcastReceiver {
         if (null == bundle) {
             return;
         }
+
+        callLab = CallLab.get(context);
 
         String state = bundle.getString(TelephonyManager.EXTRA_STATE);
 
@@ -44,22 +50,32 @@ public class PhoneCallListener extends BroadcastReceiver {
             } else {
                 String caller = checkContactNumber(incomingNumber, context);
                 if (caller == null) {
+                    Call call = new Call();
+                    call.setPhoneNumber(incomingNumber);
+                    call.setDate(new Date());
                     try {
                         String entity = query.check(incomingNumber, context);
                         if ("".equals(entity)) {
                             String msg = String.format("number %s is not found in junk list", incomingNumber);
                             Log.i(LOG_TAG, msg);
+                            call.setJunk(false);
+                            call.setName("unknown");
                             popup(msg, context);
                         } else {
                             String msg = String.format("number %s is junk (%s)", incomingNumber, entity);
                             Log.i(LOG_TAG, msg);
+                            call.setJunk(true);
+                            call.setName(entity);
                             popup(msg, context);
                         }
                     } catch (JunkcallQuery.ConnectionException e) {
                         String msg = "query failed: " + e.getMessage();
                         Log.e(LOG_TAG, msg);
+                        call.setJunk(false);
+                        call.setName("error");
                         popup(msg, context);
                     }
+                    callLab.addCall(call);
                 } else {
                     String msg = String.format("number %s is in contact list (%s)", incomingNumber, caller);
                     Log.i(LOG_TAG, msg);

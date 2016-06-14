@@ -22,9 +22,7 @@ import org.w3c.dom.Text;
 import java.util.List;
 import java.util.UUID;
 
-/**
- * Created by shan on 6/2/16.
- */
+
 public class CallListFragment extends Fragment {
 
     private static final String SAVED_SUBTITLE_VISIBLE = "subtitle";
@@ -36,6 +34,8 @@ public class CallListFragment extends Fragment {
     private CallAdapter mAdapter;
 
     private List<UUID> mUpdated;
+
+    private CallLab callLab;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -56,6 +56,7 @@ public class CallListFragment extends Fragment {
                 .findViewById(R.id.call_recycler_view);
         mCallRecyclerView.setLayoutManager(new LinearLayoutManager(getActivity()));
 
+        callLab = CallLab.get(getContext());
         updateUI();
 
         return view;
@@ -70,6 +71,7 @@ public class CallListFragment extends Fragment {
             mAdapter = new CallAdapter(calls);
             mCallRecyclerView.setAdapter(mAdapter);
         } else {
+            mAdapter.setCalls(calls);
             mAdapter.notifyDataSetChanged();
         }
 
@@ -111,6 +113,7 @@ public class CallListFragment extends Fragment {
                 @Override
                 public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                     mCall.setJunk(isChecked);
+                    callLab.updateCall(mCall);
                 }
             });
         }
@@ -147,6 +150,10 @@ public class CallListFragment extends Fragment {
         @Override
         public int getItemCount() {
             return mCalls.size();
+        }
+
+        public void setCalls(List<Call> calls) {
+            mCalls = calls;
         }
 
     }

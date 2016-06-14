@@ -165,4 +165,13 @@ public class CallFragment extends Fragment {
             updateDate();
         }
     }
+
+
+    @Override
+    public void onPause() {
+        super.onPause();
+
+        CallLab.get(getActivity())
+                .updateCall(mCall);
+    }
 }
