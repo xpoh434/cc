@@ -34,21 +34,29 @@ public class CallPagerActivity extends AppCompatActivity {
 
             @Override
             public Fragment getItem(int position) {
-                Call Call = mCalls.get(position);
-                return CallFragment.newInstance(Call.getId());
+                if(position >= mCalls.size()) {
+                    return CallFragment.newInstance(null);
+                } else {
+                    Call Call = mCalls.get(position);
+                    return CallFragment.newInstance(Call.getId());
+                }
             }
 
             @Override
             public int getCount() {
-                return mCalls.size();
+                return mCalls.size() + 1;
             }
         });
 
-        for (int i = 0; i < mCalls.size(); i++) {
-            if (mCalls.get(i).getId().equals(callId)) {
-                mViewPager.setCurrentItem(i);
-                break;
+        if(callId !=null) {
+            for (int i = 0; i < mCalls.size(); i++) {
+                if (mCalls.get(i).getId().equals(callId)) {
+                    mViewPager.setCurrentItem(i);
+                    break;
+                }
             }
+        } else {
+            mViewPager.setCurrentItem(mCalls.size());
         }
     }
 

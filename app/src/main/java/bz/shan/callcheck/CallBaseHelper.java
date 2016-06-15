@@ -23,6 +23,8 @@ public class CallBaseHelper extends SQLiteOpenHelper {
                 CallDBSchema.CallTable.Cols.DATE + " INT, " +
                 CallDBSchema.CallTable.Cols.JUNK + " INT" +
                 ")");
+
+        db.execSQL("create index " + CallDBSchema.CallTable.NAME + "_number_idx on "+CallDBSchema.CallTable.NAME+" (" + CallDBSchema.CallTable.Cols.NUMBER + ")");
     }
 
     @Override

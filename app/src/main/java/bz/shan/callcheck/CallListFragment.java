@@ -183,10 +183,10 @@ public class CallListFragment extends Fragment {
     public boolean onOptionsItemSelected(MenuItem item) {
         switch (item.getItemId()) {
             case R.id.menu_item_new_call:
-                Call call = new Call();
-                CallLab.get(getActivity()).addCall(call);
+//                Call call = new Call();
+//                CallLab.get(getActivity()).addCall(call);
                 Intent intent = CallPagerActivity
-                        .newIntent(getActivity(), call.getId());
+                        .newIntent(getActivity(), null);
                 startActivity(intent);
                 return true;
             case R.id.menu_item_show_subtitle:

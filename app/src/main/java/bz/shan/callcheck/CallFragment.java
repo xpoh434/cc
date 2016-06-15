@@ -9,6 +9,9 @@ import android.text.Editable;
 import android.text.TextWatcher;
 import android.text.format.DateFormat;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
@@ -31,12 +34,19 @@ public class CallFragment extends Fragment {
 
     private boolean mChanged;
     private Button mTimeButton;
+    private boolean mNew;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        setHasOptionsMenu(true);
         super.onCreate(savedInstanceState);
-        UUID crimeId = (UUID) getArguments().getSerializable(ARG_CALL_ID);
-        mCall = CallLab.get(getActivity()).getCall(crimeId);
+        UUID callId = (UUID) getArguments().getSerializable(ARG_CALL_ID);
+        if(callId!=null) {
+            mCall = CallLab.get(getActivity()).getCall(callId);
+        } else{
+            mCall = new Call();
+            mNew = true;
+        }
     }
 
     @Override
@@ -171,7 +181,29 @@ public class CallFragment extends Fragment {
     public void onPause() {
         super.onPause();
 
-        CallLab.get(getActivity())
-                .updateCall(mCall);
+        if(mNew) {
+            CallLab.get(getActivity()).addCall(mCall);
+        } else {
+            CallLab.get(getActivity())
+                    .updateCall(mCall);
+        }
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        super.onCreateOptionsMenu(menu, inflater);
+        inflater.inflate(R.menu.fragment_call, menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        switch (item.getItemId()) {
+            case R.id.menu_item_delete_call:
+                CallLab.get(getActivity()).deleteCall(mCall);
+                getActivity().finish();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

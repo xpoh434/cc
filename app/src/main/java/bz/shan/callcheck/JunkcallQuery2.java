@@ -25,7 +25,7 @@ import java.util.regex.Pattern;
 public class JunkcallQuery2 {
 
     private static final String LOG_TAG = "JunkcallQuery";
-    private String baseURL = "http://junkcall.org/hk/?q==";
+    private String baseURL = "http://junkcall.org/hk/?q=";
     private String keyString = "沒有資料";
     private Pattern pattern = Pattern.compile("<td><font size=\"2\"><strong><b><font size=\"2\">([^<>\\\\]*)</font></b></strong></font></td>");
     private ExecutorService pool = null;

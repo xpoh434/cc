@@ -43,21 +43,21 @@ public class CallLab {
     }
 
     public List<Call> getCalls() {
-        List<Call> crimes = new ArrayList<>();
+        List<Call> calls = new ArrayList<>();
 
         CallCursorWrapper cursor = queryCalls(null, null);
 
         try {
             cursor.moveToFirst();
             while (!cursor.isAfterLast()) {
-                crimes.add(cursor.getCall());
+                calls.add(cursor.getCall());
                 cursor.moveToNext();
             }
         } finally {
             cursor.close();
         }
 
-        return crimes;
+        return calls;
     }
 
     public Call getCall(UUID id) {
@@ -78,11 +78,39 @@ public class CallLab {
         }
     }
 
-    public void addCall(Call c) {
-        ContentValues values = getContentValues(c);
+    public Call queryCall(String number) {
+        CallCursorWrapper cursor = queryCalls(
+                CallTable.Cols.NUMBER + " = ?",
+                new String[] { number }
+        );
 
-        mDatabase.insert(CallTable.NAME, null, values);
+        try {
+            if (cursor.getCount() == 0) {
+                return null;
+            }
+
+            cursor.moveToFirst();
+            return cursor.getCall();
+        } finally {
+            cursor.close();
+        }
     }
+
+    public void addCall(Call c) {
+        if ((c.getName()!=null && !"".equals(c.getName().trim())) || (c.getPhoneNumber()!=null  && !"".equals(c.getPhoneNumber().trim()))) {
+            ContentValues values = getContentValues(c);
+            mDatabase.insert(CallTable.NAME, null, values);
+        }
+    }
+
+    public void deleteCall(Call c) {
+        String uuidString = c.getId().toString();
+
+        mDatabase.delete(CallTable.NAME, CallTable.Cols.UUID + " = ?",
+                new String[] { uuidString });
+
+    }
+
 
     public void updateCall(Call call) {
         String uuidString = call.getId().toString();

@@ -48,39 +48,48 @@ public class PhoneCallListener extends BroadcastReceiver {
                 String msg = String.format("unknown number");
                 popup(msg, context);
             } else {
-                String caller = checkContactNumber(incomingNumber, context);
-                if (caller == null) {
-                    Call call = new Call();
-                    call.setPhoneNumber(incomingNumber);
-                    call.setDate(new Date());
-                    try {
-                        String entity = query.check(incomingNumber, context);
-                        if ("".equals(entity)) {
-                            String msg = String.format("number %s is not found in junk list", incomingNumber);
-                            Log.i(LOG_TAG, msg);
+                Call call = callLab.queryCall(incomingNumber);
+                String contact = null;
+                Exception error = null;
+                if (call ==null) {
+                    String caller = checkContactNumber(incomingNumber, context);
+                    if (caller == null) {
+                        call = new Call();
+                        call.setPhoneNumber(incomingNumber);
+                        call.setDate(new Date());
+                        try {
+                            String entity = query.check(incomingNumber, context);
+                            if ("".equals(entity)) {
+                                call.setJunk(false);
+                                call.setName("unknown");
+                            } else {
+                                call.setJunk(true);
+                                call.setName(entity);
+                            }
+                        } catch (JunkcallQuery.ConnectionException e) {
                             call.setJunk(false);
-                            call.setName("unknown");
-                            popup(msg, context);
-                        } else {
-                            String msg = String.format("number %s is junk (%s)", incomingNumber, entity);
-                            Log.i(LOG_TAG, msg);
-                            call.setJunk(true);
-                            call.setName(entity);
-                            popup(msg, context);
+                            call.setName("error");
+                            error = e;
                         }
-                    } catch (JunkcallQuery.ConnectionException e) {
-                        String msg = "query failed: " + e.getMessage();
-                        Log.e(LOG_TAG, msg);
-                        call.setJunk(false);
-                        call.setName("error");
-                        popup(msg, context);
+                        callLab.addCall(call);
+
+                    } else {
+                        contact= caller;
                     }
-                    callLab.addCall(call);
-                } else {
-                    String msg = String.format("number %s is in contact list (%s)", incomingNumber, caller);
-                    Log.i(LOG_TAG, msg);
-                    popup(msg, context);
                 }
+                String msg = null;
+                if(contact!=null) {
+                    msg = String.format("number %s is in contact list (%s)", incomingNumber, contact);
+                } else if (error!=null) {
+                    msg = "query failed: " + error.getMessage();
+                } else if (call.isJunk()) {
+                    msg = String.format("number %s is junk (%s)", incomingNumber, call.getName());
+                } else {
+                    msg = String.format("number %s is not found in junk list", incomingNumber);
+                }
+
+                Log.i(LOG_TAG, msg);
+                popup(msg, context);
             }
         } else {
             ringing = false;
