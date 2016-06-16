@@ -18,4 +18,12 @@ public class CallDBSchema {
         }
     }
 
+    public static final class ConfigTable {
+        public static final String NAME = "config";
+
+        public static final class Cols {
+            public static final String NOT_ID = "not_id";
+        }
+    }
+
 }

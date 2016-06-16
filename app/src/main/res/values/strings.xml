@@ -15,4 +15,5 @@
     <string name="hide_subtitle">Hide subtitle</string>
     <string name="subtitle_format">Number of calls: %d</string>
     <string name="delete_call">Delete</string>
+    <string name="incoming_call">Callcheck: Incoming Call</string>
 </resources>

@@ -43,6 +43,7 @@ public class CallFragment extends Fragment {
         UUID callId = (UUID) getArguments().getSerializable(ARG_CALL_ID);
         if(callId!=null) {
             mCall = CallLab.get(getActivity()).getCall(callId);
+            mNew = false;
         } else{
             mCall = new Call();
             mNew = true;

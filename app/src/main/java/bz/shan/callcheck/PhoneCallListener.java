@@ -1,18 +1,25 @@
 package bz.shan.callcheck;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.database.Cursor;
 import android.os.Bundle;
-import android.os.PowerManager;
 import android.provider.ContactsContract;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.telephony.TelephonyManager;
 import android.util.Log;
-import android.widget.Toast;
 
+import com.android.internal.telephony.ITelephony;
+
+import java.lang.reflect.Method;
 import java.util.Date;
+import java.util.UUID;
 
 /**
  * Created by shan on 5/20/16.
@@ -27,6 +34,8 @@ public class PhoneCallListener extends BroadcastReceiver {
 
     private CallLab callLab;
 
+    private ConfigLab configLab;
+
     @Override
     public void onReceive(final Context context, Intent intent) {
         Bundle bundle = intent.getExtras();
@@ -36,6 +45,8 @@ public class PhoneCallListener extends BroadcastReceiver {
         }
 
         callLab = CallLab.get(context);
+
+        configLab = ConfigLab.get(context);
 
         String state = bundle.getString(TelephonyManager.EXTRA_STATE);
 
@@ -80,22 +91,63 @@ public class PhoneCallListener extends BroadcastReceiver {
                 String msg = null;
                 if(contact!=null) {
                     msg = String.format("number %s is in contact list (%s)", incomingNumber, contact);
+                    popup(msg, context);
                 } else if (error!=null) {
                     msg = "query failed: " + error.getMessage();
+                    popup(msg, context);
                 } else if (call.isJunk()) {
                     msg = String.format("number %s is junk (%s)", incomingNumber, call.getName());
+                    UUID id = call.getId();
+                    killCall(context);
+                    notify(msg,context,id);
                 } else {
                     msg = String.format("number %s is not found in junk list", incomingNumber);
+                    popup(msg, context);
                 }
 
                 Log.i(LOG_TAG, msg);
-                popup(msg, context);
             }
         } else {
             ringing = false;
             Log.i(LOG_TAG,"phone idle");
             dismiss(context);
         }
+    }
+
+    private void killCall(Context context) {
+        TelephonyManager tm = (TelephonyManager) context.getSystemService(Context.TELEPHONY_SERVICE);
+        try {
+            Class c = Class.forName(tm.getClass().getName());
+            Method m = c.getDeclaredMethod("getITelephony");
+            m.setAccessible(true);
+            ITelephony telephonyService = (ITelephony) m.invoke(tm);
+            telephonyService.silenceRinger();
+            telephonyService.endCall();
+            Log.i(LOG_TAG, "hang up");
+
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+
+    private void notify(String msg, Context context, UUID id) {
+        Resources resources = context.getResources();
+        Intent i = CallPagerActivity.newIntent(context, id);
+        PendingIntent pi = PendingIntent.getActivity(context, 0, i, 0);
+
+        Notification notification = new NotificationCompat.Builder(context)
+                .setTicker(resources.getString(R.string.incoming_call))
+                .setSmallIcon(android.R.drawable.ic_menu_report_image)
+                .setContentTitle(resources.getString(R.string.incoming_call))
+                .setContentText(msg)
+                .setContentIntent(pi)
+                .setAutoCancel(true)
+                .build();
+
+        NotificationManagerCompat notificationManager =
+                NotificationManagerCompat.from(context);
+        notificationManager.notify(configLab.consumeNotId(), notification);
+
     }
 
     private void popup(String msg, Context context) {

@@ -1,17 +1,24 @@
 package bz.shan.callcheck;
 
+import android.app.Notification;
+import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.graphics.Color;
 import android.graphics.PixelFormat;
 import android.os.IBinder;
 import android.provider.Settings;
+import android.support.v4.app.NotificationCompat;
+import android.support.v4.app.NotificationManagerCompat;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.WindowManager;
 import android.widget.TextView;
+
+import java.util.UUID;
 
 public class MyService extends Service {
 
@@ -25,7 +32,7 @@ public class MyService extends Service {
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-//        super.onCreate();
+        super.onCreate();
 
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         if (view != null) {
@@ -49,10 +56,12 @@ public class MyService extends Service {
 
         wm.addView(view, params);
 
+
         return START_STICKY;
     }
 
     public void onDestroy() {
+
         WindowManager wm = (WindowManager) getSystemService(WINDOW_SERVICE);
         wm.removeView(view);
         view = null;

@@ -5,7 +5,7 @@ import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 
 public class CallBaseHelper extends SQLiteOpenHelper {
-    private static final int VERSION = 1;
+    private static final int VERSION = 2;
     private static final String DATABASE_NAME = "callBase.db";
 
     public CallBaseHelper(Context context) {
@@ -27,8 +27,18 @@ public class CallBaseHelper extends SQLiteOpenHelper {
         db.execSQL("create index " + CallDBSchema.CallTable.NAME + "_number_idx on "+CallDBSchema.CallTable.NAME+" (" + CallDBSchema.CallTable.Cols.NUMBER + ")");
     }
 
+    public void createConfigTable(SQLiteDatabase db) {
+        db.execSQL("create table " + CallDBSchema.ConfigTable.NAME + "(" +
+                " _id integer primary key autoincrement, " +
+                CallDBSchema.ConfigTable.Cols.NOT_ID + " INT DEFAULT 0" +
+                ")");
+    }
+
     @Override
     public void onUpgrade(SQLiteDatabase db, int oldVersion, int newVersion) {
+        if (oldVersion <= 1) {
+            createConfigTable(db);
+        }
 
     }
 }
